@@ -25,7 +25,7 @@ class LanguageModel(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def init_hidden(self, batch_size):
+    def init_hidden(self, batch_size, device):
         return torch.zeros(self.nlayers, batch_size, self.hidden_dim)
 
     def forward(self, data, hidden):

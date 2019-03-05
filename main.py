@@ -11,10 +11,15 @@ import torch.nn as nn
 
 from model import languagemodel
 
-path_to_data ="/home/chase/data/trump-tweets/tweets.txt"
+path_to_data ="/home/cddunca2/data/trump-tweets/tweets.txt"
 epochs = 100
 batch_size = 64 
 bptt_len = 35
+
+# TODO: this is broken on koyejo-2. possible the wrong pytorch is installed
+use_cuda = torch.cuda.is_available()
+device = torch.device("cuda:0" if use_cuda else "cpu")
+device = "cpu"
 
 my_tok = spacy.load('en')
 
@@ -27,11 +32,15 @@ def train():
     https://github.com/pytorch/examples/tree/master/word_language_model
     '''
     model.train()
-    start_time = time.time()
     for batch in tqdm(bptt_it):
         model.zero_grad()
-        text, targets = batch.text, batch.target
-        hidden = model.init_hidden(batch_size)
+        text, targets = batch.text.to(device), batch.target.to(device)
+
+
+        # TODO: pass device as param
+        hidden = model.init_hidden(batch_size, device)
+        
+        hidden = hidden.to(device)
         output, hidden= model(text, hidden)
 
         # pytorch currently only supports cross entropy loss for inputs of 2 or 4 dimensions.
@@ -73,6 +82,9 @@ model.encoder.weight.data.copy_(weight_matrix)
 
 criterion = nn.CrossEntropyLoss()
 
+model = model.to(device)
+
+# move model to device
 for epoch in range(epochs):
     print("Training epoch: {}".format(epoch))
     train()

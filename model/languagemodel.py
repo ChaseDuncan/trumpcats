@@ -8,7 +8,7 @@ class LanguageModel(nn.Module):
         super(LanguageModel, self).__init__()
         self.hidden_dim = hidden_dim
         self.nlayers = nlayers
-        
+        self.hidden = None        
         self.drop = nn.Dropout(dropout) 
         self.encoder = nn.Embedding(vocab_size, embedding_dim)
 
@@ -34,7 +34,3 @@ class LanguageModel(nn.Module):
         output = self.drop(output)
         decoded = self.decoder(output)
         return decoded, hidden
-
-
-
-

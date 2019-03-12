@@ -23,8 +23,9 @@ TEXT = data.Field(lower=True, tokenize=spacy_tok)
 dataset = LanguageModelingDataset(path_to_data, TEXT)
 TEXT.build_vocab(dataset, vectors="glove.6B.200d")
 ntokens = len(TEXT.vocab)
-checkpoint = torch.load("checkpoints/test/model.pt")
-model = languagemodel.LanguageModel(200, 200, ntokens, 20, 0.5)
+checkpoint = torch.load("checkpoints/v4/model.pt")
+
+model = languagemodel.LanguageModel(200, 400, ntokens, 40, 0.1)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
@@ -33,6 +34,7 @@ model = model.to(device)
 input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 temperature = 2.0
 numwords = 100
+
 with open("output", 'w') as outf:
     with torch.no_grad():  # no tracking history
         for i in range(numwords):
@@ -44,7 +46,6 @@ with open("output", 'w') as outf:
             if 'https://' in word or 'http://' in word:
                 continue
             outf.write(word + ('\n' if i % 20 == 19 else ' '))
-
 
             if "eos" in word:
                 break
